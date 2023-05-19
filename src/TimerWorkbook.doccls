@@ -1,0 +1,3 @@
+﻿Private Sub Workbook_Open()
+    Call UtilititesModule.UpdateProjectComboBox(14, "PROJECT")
+End Sub

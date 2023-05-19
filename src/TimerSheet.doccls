@@ -1,0 +1,72 @@
+﻿Public currentProject As String
+
+Private Sub AddFromProjectList_Click()
+   
+End Sub
+
+Private Sub AddProjectButton_Click()
+    Call UtilititesModule.ClearAddProjectForm
+    Call addProjectForm.Show
+End Sub
+
+Private Sub ProjectsComboBox_Change()
+    Call UtilititesModule.SetActiveProject
+    TimerSheet.StartButton.Caption = "Start '" + currentProject + "' Task"
+End Sub
+
+Private Sub StartButton_Click()
+    Dim project As String
+    project = TimerSheet.ProjectsComboBox.value
+    Dim currentProject As String
+    currentProject = TimerSheet.ProjectsComboBox.value
+    Dim projectExists As String
+    projectExists = UtilititesModule.GetProjectRow(currentProject, 1)
+    If currentProject <> "" And projectExists = "" Then
+        Dim projectRow As Integer
+        projectRow = UtilititesModule.GetProjectRow(currentProject, 14)
+        Call UtilititesModule.InsertDataIntoCells(projectRow, 14)
+    End If
+    If project <> "" Then
+        If UtilititesModule.GetTaskStartTime = "" Then
+            TimerSheet.StartButton.Caption = "Stop '" + project + "' Task"
+            TimerSheet.StartButton.BackColor = &H5753D1
+            UtilititesModule.StartTime
+            TimerSheet.ProjectsComboBox.Enabled = False
+            TimerSheet.AddProjectButton.Enabled = False
+        Else
+            TaskComletedForm.Show
+            TimerSheet.StartButton.Caption = "Start '" + project + "' Task"
+            TimerSheet.StartButton.BackColor = &H5DAE42
+            TimerSheet.ProjectsComboBox.Enabled = True
+            TimerSheet.AddProjectButton.Enabled = True
+            UtilititesModule.StopTime
+            'Total time calulation
+            Dim totalTimeInMinutes As Integer
+            totalTimeInMinutes = UtilititesModule.GetSumTime(6)
+            Dim hoursMinutesTotal As String
+            hoursMinutesTotal = [totalTimeInMinutes] \ 60 & Format([totalTimeInMinutes] Mod 60, "\:00")
+            TimerSheet.Cells(4, 12).value = hoursMinutesTotal
+        End If
+    Else
+        TimerSheet.ProjectsComboBox.Enabled = True
+        TimerSheet.AddProjectButton.Enabled = True
+        MsgBox ("Please select the project before continue")
+    End If
+End Sub
+
+
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    Dim i As Integer
+    For i = 0 To TimerSheet.ProjectsComboBox.ListCount - 1
+        Dim comboBoxProjectName As String
+        comboBoxProjectName = TimerSheet.ProjectsComboBox.List(i)
+        Dim projectNameFromList As Integer
+        Dim projectExists As String
+        projectExists = UtilititesModule.GetProjectRow(comboBoxProjectName, 14)
+        If projectExists = "" Then
+            Call UtilititesModule.UpdateProjectComboBox(14, "PROJECT")
+            Exit For
+        End If
+    Next i
+End Sub
